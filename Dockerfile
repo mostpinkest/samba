@@ -56,6 +56,7 @@ RUN file="/etc/samba/smb.conf" && \
     echo '   fruit:veto_appledouble = no' >>$file && \
     echo '   fruit:wipe_intentionally_left_blank_rfork = yes' >>$file && \
     echo '' >>$file && \
+    mkdir /etc/docker-samba && \
     cp /etc/samba/smb.conf /etc/docker-samba/smb.conf && \
     rm -rf /tmp/*
 
