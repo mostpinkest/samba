@@ -1,12 +1,15 @@
 FROM alpine
-MAINTAINER David Personette <dperson@gmail.com>
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash samba shadow tini tzdata && \
+    apk --no-cache --no-progress add bash samba shadow tini tzdata python3 && \
     addgroup -S smb && \
-    adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser &&\
-    file="/etc/samba/smb.conf" && \
+    adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser
+
+RUN cp -r /var/lib/samba /samba.bak
+
+# Default config
+RUN file="/etc/samba/smb.conf" && \
     sed -i 's|^;* *\(log file = \).*|   \1/dev/stdout|' $file && \
     sed -i 's|^;* *\(load printers = \).*|   \1no|' $file && \
     sed -i 's|^;* *\(printcap name = \).*|   \1/dev/null|' $file && \
@@ -53,9 +56,13 @@ RUN apk --no-cache --no-progress upgrade && \
     echo '   fruit:veto_appledouble = no' >>$file && \
     echo '   fruit:wipe_intentionally_left_blank_rfork = yes' >>$file && \
     echo '' >>$file && \
+    cp /etc/samba/smb.conf /etc/docker-samba/smb.conf && \
     rm -rf /tmp/*
 
 COPY samba.sh /usr/bin/
+COPY config.sh /usr/bin/
+
+ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
 
 EXPOSE 137/udp 138/udp 139 445
 
@@ -65,4 +72,4 @@ HEALTHCHECK --interval=60s --timeout=15s \
 VOLUME ["/etc", "/var/cache/samba", "/var/lib/samba", "/var/log/samba",\
             "/run/samba"]
 
-ENTRYPOINT ["/sbin/tini", "--", "/usr/bin/samba.sh"]
+ENTRYPOINT ["/usr/bin/config.sh"]

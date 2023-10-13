@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   samba:
-    image: dperson/samba
+    image: logicer16/samba
     environment:
       TZ: 'EST5EDT'
     networks:

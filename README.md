@@ -1,4 +1,4 @@
-[![logo](https://raw.githubusercontent.com/dperson/samba/master/logo.jpg)](https://www.samba.org)
+[![logo](https://raw.githubusercontent.com/logicer16/samba/master/logo.jpg)](https://www.samba.org)
 
 # Samba
 
@@ -16,17 +16,17 @@ By default there are no shares configured, additional ones can be added.
 
 ## Hosting a Samba instance
 
-    sudo docker run -it -p 139:139 -p 445:445 -d dperson/samba -p
+    sudo docker run -it -p 139:139 -p 445:445 -d logicer16/samba -p
 
 OR set local storage:
 
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d dperson/samba -p
+                -d logicer16/samba -p
 
 ## Configuration
 
-    sudo docker run -it --rm dperson/samba -h
+    sudo docker run -it --rm logicer16/samba -h
     Usage: samba.sh [-opt] [command]
     Options (fields in '[]' are optional, '<>' are required):
         -h          This help
@@ -74,7 +74,7 @@ OR set local storage:
 
     The 'command' (if provided and valid) will be run instead of samba
 
-ENVIRONMENT VARIABLES
+### Environment Variables
 
  * `CHARMAP` - As above, configure character mapping
  * `GENERIC` - As above, configure a generic section option (See NOTE3 below)
@@ -92,6 +92,7 @@ ENVIRONMENT VARIABLES
  * `USERID` - Set the UID for the samba server's default user (smbuser)
  * `GROUPID` - Set the GID for the samba server's default user (smbuser)
  * `INCLUDE` - As above, add a smb.conf include
+ * `SMB_CONF_PATH` - See [`smb.conf`](#smbconf). Defaults to `/etc/docker-samba/smb.conf`
 
 **NOTE**: if you enable nmbd (via `-n` or the `NMBD` environment variable), you
 will also want to expose port 137 and 138 with `-p 137:137/udp -p 138:138/udp`.
@@ -102,6 +103,10 @@ container configured to use the hosts network stack.
 **NOTE3**: optionally supports additional variables starting with the same name,
 IE `SHARE` also will work for `SHARE2`, `SHARE3`... `SHAREx`, etc.
 
+### `smb.conf`
+
+If you wish you use a custom smb.conf file other than the default `smb.conf`, your're able to specfiy a custom `smb.conf` file binded to the path specified by `SMB_CONF_PATH`. Any additional configuration you provide through environment variables or CLI options will be automatically applied to the supplied configuration.
+
 ## Examples
 
 Any of the commands can be run at creation with `docker run` or later with
@@ -109,17 +114,22 @@ Any of the commands can be run at creation with `docker run` or later with
 
 ### Setting the Timezone
 
-    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d dperson/samba -p
+    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d logicer16/samba -p
 
 ### Start an instance creating users and shares:
 
-    sudo docker run -it -p 139:139 -p 445:445 -d dperson/samba -p \
+    sudo docker run -it -p 139:139 -p 445:445 -v config/smb.conf:/etc/docker-samba/smb.conf -d logicer16/samba -p \
                 -u "example1;badpass" \
                 -u "example2;badpass" \
                 -s "public;/share" \
                 -s "users;/srv;no;no;no;example1,example2" \
                 -s "example1 private share;/example1;no;no;no;example1" \
                 -s "example2 private share;/example2;no;no;no;example2"
+
+### Use a custom `smb.conf`
+
+    sudo docker run -it -p 139:139 -p 445:445 -d logicer16/samba -p \
+                -u "example1;badpass"
 
 # User Feedback
 
@@ -134,7 +144,7 @@ Add the `-p` option to the end of your options to the container, or set the
 
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d dperson/samba -p
+                -d logicer16/samba -p
 
 If changing the permissions of your files is not possible in your setup you
 can instead set the environment variables `USERID` and `GROUPID` to the
@@ -148,7 +158,7 @@ docker_compose.yml files, IE:
 
     sudo docker run -it --name samba -m 512m -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d dperson/samba -p
+                -d logicer16/samba -p
 
 * Attempting to connect with the `smbclient` commandline tool. By default samba
 still tries to use SMB1, which is depriciated and has security issues. This
@@ -159,4 +169,4 @@ any other options you would specify.
 ## Issues
 
 If you have any problems with or questions about this image, please contact me
-through a [GitHub issue](https://github.com/dperson/samba/issues).
+through a [GitHub issue](https://github.com/logicer16/samba/issues).
