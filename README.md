@@ -92,6 +92,7 @@ OR set local storage:
  * `USERID` - Set the UID for the samba server's default user (smbuser)
  * `GROUPID` - Set the GID for the samba server's default user (smbuser)
  * `INCLUDE` - As above, add a smb.conf include
+ * `SAMBA_SH_ARGS` - Additional arguments to be appended to those supplied by docker's command 
  * `SMB_CONF_PATH` - See [`smb.conf`](#smbconf). Defaults to `/etc/docker-samba/smb.conf`
 
 **NOTE**: if you enable nmbd (via `-n` or the `NMBD` environment variable), you

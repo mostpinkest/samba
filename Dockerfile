@@ -2,7 +2,7 @@ FROM alpine
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash samba shadow tini tzdata python3 && \
+    apk --no-cache --no-progress add bash samba shadow supervisor tzdata && \
     addgroup -S smb && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser
 
@@ -60,8 +60,9 @@ RUN file="/etc/samba/smb.conf" && \
     cp /etc/samba/smb.conf /etc/docker-samba/smb.conf && \
     rm -rf /tmp/*
 
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY entrypoint.sh /usr/bin/
 COPY samba.sh /usr/bin/
-COPY config.sh /usr/bin/
 
 ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
 
@@ -73,4 +74,4 @@ HEALTHCHECK --interval=60s --timeout=15s \
 VOLUME ["/etc", "/var/cache/samba", "/var/lib/samba", "/var/log/samba",\
             "/run/samba"]
 
-ENTRYPOINT ["/usr/bin/config.sh"]
+ENTRYPOINT ["/usr/bin/entrypoint.sh"]
