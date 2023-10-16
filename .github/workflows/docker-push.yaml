@@ -66,5 +66,5 @@ jobs:
         name: Push image to GHCR
         run: |
           docker buildx imagetools create \
-            --tag ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest \
+            --tag ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.target }} \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
