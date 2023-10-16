@@ -12,16 +12,9 @@ RUN ./build.sh preparePack
 RUN mkdir -p /dist/usr && \
     bash -c "mv tmp/samba-exporter_*/usr/bin /dist/usr/bin"
 
-FROM alpine as exporter_image
-RUN addgroup -S samba-exporter && \
-    adduser -S -H -D -G samba-exporter samba-exporter
-COPY exporter-supervisord.conf /dist/etc/supervisor/conf.d/
-COPY --from=build /dist/ /
-RUN sed -i "s/\$samba_statusd \$\* &/exec \$samba_statusd \$*/g" '/usr/bin/start_samba_statusd'
+# ==============================================
 
 FROM alpine as latest_image
-
-FROM ${IMAGE_TARGET}_image
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
@@ -30,6 +23,8 @@ RUN apk --no-cache --no-progress upgrade && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser
 
 RUN cp -r /var/lib/samba /samba.bak
+
+ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
 
 # Default config
 RUN file="/etc/samba/smb.conf" && \
@@ -81,7 +76,7 @@ RUN file="/etc/samba/smb.conf" && \
     echo '' >>$file && \
     mkdir /etc/docker-samba && \
     mkdir -p /etc/supervisor/conf.d && \
-    cp /etc/samba/smb.conf /etc/docker-samba/smb.conf && \
+    cp /etc/samba/smb.conf $SMB_CONF_PATH && \
     rm -rf /tmp/*
 
 COPY supervisord.conf /dist/etc/supervisor/conf.d/
@@ -89,11 +84,23 @@ COPY /usr/bin/* /usr/bin/
 
 ARG IMAGE_TARGET
 ENV IMAGE_TARGET=$IMAGE_TARGET
-RUN bash -c "[[ $IMAGE_TARGET == 'exporter' ]] && \
-    cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf || \
-    [[ $IMAGE_TARGET != 'exporter' ]]"
 
-ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
+# ==============================================
+
+FROM latest_image as exporter_image
+
+RUN addgroup -S samba-exporter && \
+    adduser -S -H -D -G samba-exporter samba-exporter
+
+COPY exporter-supervisord.conf /dist/etc/supervisor/conf.d/
+RUN cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf
+
+COPY --from=build /dist/ /
+RUN sed -i "s/\$samba_statusd \$\* &/exec \$samba_statusd \$*/g" '/usr/bin/start_samba_statusd'
+
+# ==============================================
+
+FROM ${IMAGE_TARGET}_image AS final
 
 EXPOSE 137/udp 138/udp 139 445
 
