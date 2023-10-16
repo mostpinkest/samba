@@ -90,7 +90,8 @@ COPY /usr/bin/* /usr/bin/
 ARG IMAGE_TARGET
 ENV IMAGE_TARGET=$IMAGE_TARGET
 RUN bash -c "[[ $IMAGE_TARGET == 'exporter' ]] && \
-    cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf"
+    cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf || \
+    [[ $IMAGE_TARGET != 'exporter' ]]"
 
 ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
 
