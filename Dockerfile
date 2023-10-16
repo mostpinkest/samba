@@ -1,8 +1,31 @@
-FROM alpine
+ARG IMAGE_TARGET=latest
+FROM golang:alpine AS build
+
+WORKDIR /src/samba_exporter
+
+RUN apk --no-cache --no-progress upgrade && \
+    apk --no-cache --no-progress add ronn bash git
+
+COPY . /src/
+RUN ./build.sh preparePack
+
+RUN mkdir -p /dist/usr && \
+    bash -c "mv tmp/samba-exporter_*/usr/bin /dist/usr/bin"
+
+FROM alpine as exporter_image
+RUN addgroup -S samba-exporter && \
+    adduser -S -H -D -G samba-exporter samba-exporter
+COPY exporter-supervisord.conf /dist/etc/supervisor/conf.d/
+COPY --from=build /dist/ /
+RUN sed -i "s/\$samba_statusd \$\* &/exec \$samba_statusd \$*/g" '/usr/bin/start_samba_statusd'
+
+FROM alpine as latest_image
+
+FROM ${IMAGE_TARGET}_image
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash samba shadow supervisor tzdata && \
+    apk --no-cache --no-progress add bash samba shadow supervisor tzdata python3 && \
     addgroup -S smb && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser
 
@@ -57,21 +80,26 @@ RUN file="/etc/samba/smb.conf" && \
     echo '   fruit:wipe_intentionally_left_blank_rfork = yes' >>$file && \
     echo '' >>$file && \
     mkdir /etc/docker-samba && \
+    mkdir -p /etc/supervisor/conf.d && \
     cp /etc/samba/smb.conf /etc/docker-samba/smb.conf && \
     rm -rf /tmp/*
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY entrypoint.sh /usr/bin/
-COPY samba.sh /usr/bin/
+COPY supervisord.conf /dist/etc/supervisor/conf.d/
+COPY /usr/bin/* /usr/bin/
+
+ARG IMAGE_TARGET
+ENV IMAGE_TARGET=$IMAGE_TARGET
+RUN bash -c "[[ $IMAGE_TARGET == 'exporter' ]] && \
+    cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf"
 
 ENV SMB_CONF_PATH=/etc/docker-samba/smb.conf
 
 EXPOSE 137/udp 138/udp 139 445
 
 HEALTHCHECK --interval=60s --timeout=15s \
-            CMD smbclient -L \\localhost -U % -m SMB3
+    CMD smbclient -L \\localhost -U % -m SMB3
 
 VOLUME ["/etc", "/var/cache/samba", "/var/lib/samba", "/var/log/samba",\
-            "/run/samba"]
+    "/run/samba"]
 
 ENTRYPOINT ["/usr/bin/entrypoint.sh"]

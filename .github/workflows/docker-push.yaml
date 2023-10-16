@@ -16,10 +16,15 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        target: ["latest", "exporter"]
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -40,7 +45,7 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/arm/v6
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.target }}
           cache-from: type=gha
           cache-to: type=gha,mode=maxt
       -
@@ -50,3 +55,9 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
           repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}
+      -
+        name: Push image to GHCR
+        run: |
+          docker buildx imagetools create \
+            --tag ghcr.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:latest \
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}

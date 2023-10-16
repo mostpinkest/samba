@@ -4,6 +4,8 @@
 
 Samba docker container
 
+A drop-in replacement for [dperson/samba](https://github.com/dperson/samba) with optional support for [imker25/samba_exporter](https://github.com/imker25/samba_exporter/)
+
 # What is Samba?
 
 Since 1992, Samba has provided secure, stable and fast file and print services
@@ -11,6 +13,10 @@ for all clients using the SMB/CIFS protocol, such as all versions of DOS and
 Windows, OS/2, Linux and many others.
 
 # How to use this image
+
+This image comes in two variants:
+* `logicer16/samba:latest`: A modified version of [dperson/samba](https://github.com/dperson/samba), with additional support for a custom config.
+* `logicer16/samba:exporter`: The same as `logicer16/samba:latest` with [imker25/samba_exporter](https://github.com/imker25/samba_exporter/) running alongside it on port `9922`.
 
 By default there are no shares configured, additional ones can be added.
 
@@ -23,6 +29,11 @@ OR set local storage:
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
                 -d logicer16/samba -p
+
+OR run with exporter:
+
+    sudo docker run -it -p 139:139 -p 445:445 -p 9922:9922 -d \
+                logicer16/samba:exporter -p
 
 ## Configuration
 
@@ -92,7 +103,9 @@ OR set local storage:
  * `USERID` - Set the UID for the samba server's default user (smbuser)
  * `GROUPID` - Set the GID for the samba server's default user (smbuser)
  * `INCLUDE` - As above, add a smb.conf include
- * `SAMBA_SH_ARGS` - Additional arguments to be appended to those supplied by docker's command 
+ * `SAMBA_SH_ARGS` - Additional arguments to be appended to those supplied by docker's command
+ * `SAMBA_EXPORTER_STATUSD_ARGS` - [Options for `samba_statusd`](https://imker25.github.io/samba_exporter/manpages/samba_statusd.1.html#OPTIONS). Only available with the `exporter` tag.
+ * `SAMBA_EXPORTER_ARGS` - [Options for `samba_exporter`](https://imker25.github.io/samba_exporter/manpages/samba_exporter.1.html#OPTIONS). Only available with the `exporter` tag.
  * `SMB_CONF_PATH` - See [`smb.conf`](#smbconf). Defaults to `/etc/docker-samba/smb.conf`
 
 **NOTE**: if you enable nmbd (via `-n` or the `NMBD` environment variable), you
