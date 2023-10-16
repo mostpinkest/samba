@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         target: ["latest", "exporter"]
+        platform: ["linux/amd64", "linux/arm64", "linux/arm/v6"]
     steps:
       -
         name: Checkout
@@ -49,7 +50,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/arm/v6
+          platforms: ${{ matrix.platform }}
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.target }}
