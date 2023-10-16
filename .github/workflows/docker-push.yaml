@@ -55,6 +55,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ matrix.target }}
           cache-from: type=gha
           cache-to: type=gha,mode=maxt
+          build-args: IMAGE_TARGET=${{ matrix.target }}
       -
         name: Update repo description
         uses: peter-evans/dockerhub-description@v3
