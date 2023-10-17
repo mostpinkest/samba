@@ -27,11 +27,12 @@ def main():
         # read header line and print it to stderr
         line = sys.stdin.readline()
         try:
-            write_stderr(line)
-
             # read event payload and print it to stderr
             headers = parse_line(line)
             data = parse_line(sys.stdin.read(int(headers['len'])))
+            # write_stderr("\n")
+            # write_stderr(line)
+            # write_stderr(data)
 
             if headers["eventname"] == "PROCESS_STATE_RUNNING" and \
                 data["processname"] == "samba_statusd":
@@ -45,8 +46,9 @@ def main():
 
             # transition from READY to ACKNOWLEDGED
             write_stdout('RESULT 2\nOK')
-            write_stderr("\n")
-        except:
+        except Exception as e:
+            write_stderr(e)
+
             # return FAIL on error
             write_stdout('RESULT 4\nFAIL')
 
