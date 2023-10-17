@@ -1,5 +1,5 @@
 ARG IMAGE_TARGET=latest
-FROM golang:alpine AS build
+FROM --platform=$BUILDPLATFORM golang:alpine AS build
 
 WORKDIR /src/samba_exporter
 
@@ -7,7 +7,10 @@ RUN apk --no-cache --no-progress upgrade && \
     apk --no-cache --no-progress add ronn bash git
 
 COPY . /src/
-RUN ./build.sh preparePack
+ARG TARGETOS TARGETARCH
+RUN --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=cache,target=/go/pkg \
+    GOOS=$TARGETOS GOARCH=$TARGETARCH ./build.sh preparePack
 
 RUN mkdir -p /dist/usr && \
     bash -c "mv tmp/samba-exporter_*/usr/bin /dist/usr/bin"
