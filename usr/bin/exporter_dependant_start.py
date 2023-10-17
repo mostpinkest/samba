@@ -31,13 +31,14 @@ def main():
 
             # read event payload and print it to stderr
             headers = parse_line(line)
-            data = sys.stdin.read(int(headers['len']))
-            write_stderr(data)
+            data = parse_line(sys.stdin.read(int(headers['len'])))
 
-            if headers["eventname"] == "PROCESS_STATE_RUNNING":
+            if headers["eventname"] == "PROCESS_STATE_RUNNING" and \
+                data["processname"] == "samba_statusd":
                 subprocess.run(["supervisorctl", "-c", "/etc/supervisor/conf.d/supervisord.conf",
                                 "start", "samba_exporter"], stdout=sys.stderr.buffer, check=True)
-            elif headers["eventname"] == "PROCESS_STATE_STOPPING":
+            elif headers["eventname"] == "PROCESS_STATE_STOPPING" and \
+                data["processname"] == "samba_statusd":
                 subprocess.run(
                     ["supervisorctl", "-c", "/etc/supervisor/conf.d/supervisord.conf", "stop",
                      "samba_exporter"], stdout=sys.stderr.buffer, check=True)
