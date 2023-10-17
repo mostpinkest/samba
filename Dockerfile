@@ -88,6 +88,9 @@ COPY /usr/bin/* /usr/bin/
 ARG IMAGE_TARGET
 ENV IMAGE_TARGET=$IMAGE_TARGET
 
+HEALTHCHECK --interval=60s --timeout=15s \
+    CMD smbclient -L \\localhost -U % -m SMB3
+
 # ==============================================
 
 FROM latest_image as exporter_image
@@ -101,14 +104,18 @@ RUN cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/superv
 COPY --from=build /dist/ /
 RUN sed -i "s/\$samba_statusd \$\* &/exec \$samba_statusd \$*/g" '/usr/bin/start_samba_statusd'
 
+EXPOSE 9922
+
+HEALTHCHECK --interval=20s \
+    CMD smbclient -L \\localhost -U % -m SMB3 && \
+    bash -c '[[ "$(wget --spider -S "localhost:9922/metrics" 2>&1 | grep "HTTP/" | awk "{print \$2}")" == "200" ]]'
+
 # ==============================================
 
 FROM ${IMAGE_TARGET}_image AS final
 
 EXPOSE 137/udp 138/udp 139 445
 
-HEALTHCHECK --interval=60s --timeout=15s \
-    CMD smbclient -L \\localhost -U % -m SMB3
 
 VOLUME ["/etc", "/var/cache/samba", "/var/lib/samba", "/var/log/samba",\
     "/run/samba"]
