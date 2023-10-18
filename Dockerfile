@@ -21,7 +21,7 @@ FROM alpine as latest_image
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
-    apk --no-cache --no-progress add bash samba shadow supervisor tzdata python3 && \
+    apk --no-cache --no-progress add bash samba shadow supervisor tzdata && \
     addgroup -S smb && \
     adduser -S -D -H -h /tmp -s /sbin/nologin -G smb -g 'Samba User' smbuser
 
@@ -83,7 +83,8 @@ RUN file="/etc/samba/smb.conf" && \
     rm -rf /tmp/*
 
 COPY supervisord.conf /dist/etc/supervisor/conf.d/
-COPY /usr/bin/* /usr/bin/
+COPY usr/bin/entrypoint.sh /usr/bin/
+COPY usr/bin/samba.sh /usr/bin/
 
 ARG IMAGE_TARGET
 ENV IMAGE_TARGET=$IMAGE_TARGET
@@ -95,11 +96,14 @@ HEALTHCHECK --interval=60s --timeout=15s \
 
 FROM latest_image as exporter_image
 
-RUN addgroup -S samba-exporter && \
+RUN apk --no-cache --no-progress add python3 && \
+    addgroup -S samba-exporter && \
     adduser -S -H -D -G samba-exporter samba-exporter
 
 COPY exporter-supervisord.conf /dist/etc/supervisor/conf.d/
 RUN cat /dist/etc/supervisor/conf.d/exporter-supervisord.conf >>/dist/etc/supervisor/conf.d/supervisord.conf
+
+COPY /usr/bin/exporter_dependant_start.py /usr/bin/
 
 COPY --from=build /dist/ /
 RUN sed -i "s/\$samba_statusd \$\* &/exec \$samba_statusd \$*/g" '/usr/bin/start_samba_statusd'
