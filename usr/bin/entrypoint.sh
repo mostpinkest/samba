@@ -15,12 +15,12 @@ sub(/<#@SAMBA_EXPORTER_STATUSD_ARGS>/,\"$SAMBA_EXPORTER_STATUSD_ARGS\");\
 sub(/<#@SAMBA_EXPORTER_ARGS>/,\"$SAMBA_EXPORTER_ARGS\");"
 
   # Extract exporter config for healthcheck 
-  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.listen-address(=|[[:space:]])([-\.[:alnum:]]*)(:([1-5][[:digit:]]{4}|[1-9][[:digit:]]{0,3}|6[0-4][[:digit:]]{3}|65[0-4][[:digit:]]{2}|655[0-2][[:digit:]]|6553[0-5]))?[[:space:]$] ]]
-  ADDRESS="${BASH_REMATCH[2]}${BASH_REMATCH[3]}"
+  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.listen-address[=[:space:]]([-\.[:alnum:]]*)(:([1-5][[:digit:]]{4}|[1-9][[:digit:]]{0,3}|6[0-4][[:digit:]]{3}|65[0-4][[:digit:]]{2}|655[0-2][[:digit:]]|6553[0-5]))?[[:space:]$] ]]
+  ADDRESS="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
   ADDRESS=${ADDRESS:-:9922}
   
-  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.telemetry-path(=|[[:space:]])(\/[-[:alnum:]@:%_\+.~#?&//=]*)[[:space:]$] ]]
-  METRICS_PATH=${BASH_REMATCH[2]:-/metrics}
+  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.telemetry-path[=[:space:]](\/[-[:alnum:]@:%_\+.~#?&//=]*)[[:space:]$] ]]
+  METRICS_PATH=${BASH_REMATCH[1]:-/metrics}
 
   echo "$ADDRESS$METRICS_PATH" > /tmp/exporter-healthcheck-url
 fi
