@@ -1,6 +1,6 @@
 #! /bin/bash
 
-SUPERVISORD_CONF_PATH=/etc/supervisor/conf.d/supervisord.conf
+supervisord_conf_path=/etc/supervisor/conf.d/supervisord.conf
 
 # Copy config file
 cp $SMB_CONF_PATH /etc/samba/smb.conf
@@ -10,21 +10,21 @@ SAMBA_SH_ARGS="$@ $SAMBA_SH_ARGS"
 
 if [[ $IMAGE_TARGET == "exporter" ]]; then
   # Modify supervisord.conf and exporter-supervisord.conf
-  MULTIPLE_AWK="\
+  multiple_awk="\
 sub(/<#@SAMBA_EXPORTER_STATUSD_ARGS>/,\"$SAMBA_EXPORTER_STATUSD_ARGS\");\
 sub(/<#@SAMBA_EXPORTER_ARGS>/,\"$SAMBA_EXPORTER_ARGS\");"
 
   # Extract exporter config for healthcheck 
-  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.listen-address[=[:space:]]([-\.[:alnum:]]*)(:([1-5][[:digit:]]{4}|[1-9][[:digit:]]{0,3}|6[0-4][[:digit:]]{3}|65[0-4][[:digit:]]{2}|655[0-2][[:digit:]]|6553[0-5]))?[[:space:]$] ]]
-  ADDRESS="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
-  ADDRESS=${ADDRESS:-:9922}
+  [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.listen-address[=[:space:]]([-\.[:alnum:]]+)(:([1-5][[:digit:]]{4}|[1-9][[:digit:]]{0,3}|6[0-4][[:digit:]]{3}|65[0-4][[:digit:]]{2}|655[0-2][[:digit:]]|6553[0-5]))?[[:space:]$] ]]
+  address="${BASH_REMATCH[1]}${BASH_REMATCH[2]}"
+  address=${address:-:9922}
   
   [[ $SAMBA_EXPORTER_ARGS =~ [[:space:]^]-web\.telemetry-path[=[:space:]](\/[-[:alnum:]@:%_\+.~#?&//=]*)[[:space:]$] ]]
-  METRICS_PATH=${BASH_REMATCH[1]:-/metrics}
+  metrics_path=${BASH_REMATCH[1]:-/metrics}
 
-  echo "$ADDRESS$METRICS_PATH" > /tmp/exporter-healthcheck-url
+  echo "$address$metrics_path" > /tmp/exporter-healthcheck-url
 fi
-cat "/dist$SUPERVISORD_CONF_PATH" | \
-awk "{sub(/<#@SAMBA_SH_ARGS>/,\"$SAMBA_SH_ARGS\")$MULTIPLE_AWK}1" > $SUPERVISORD_CONF_PATH
+cat "/dist$supervisord_conf_path" | \
+awk "{sub(/<#@SAMBA_SH_ARGS>/,\"$SAMBA_SH_ARGS\")$multiple_awk}1" > $supervisord_conf_path
 
-exec /usr/bin/supervisord -c $SUPERVISORD_CONF_PATH
+exec /usr/bin/supervisord -c $supervisord_conf_path
