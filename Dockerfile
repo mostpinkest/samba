@@ -108,7 +108,7 @@ EXPOSE 9922
 
 HEALTHCHECK --interval=20s \
     CMD smbclient -L \\localhost -U % -m SMB3 && \
-    bash -c '[[ "$(wget --spider -S "localhost:9922/metrics" 2>&1 | grep "HTTP/" | awk "{print \$2}")" == "200" ]]'
+    bash -c '[[ "$(wget --spider -S "$(cat /tmp/exporter-healthcheck-url)" 2>&1 | grep "HTTP/" | awk "{print \$2}")" == "200" ]]'
 
 # ==============================================
 
