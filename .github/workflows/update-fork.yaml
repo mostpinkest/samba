@@ -26,7 +26,6 @@ jobs:
 
       - name: Rebase
         run: |
-          git fetch upstream master:master
           git rebase upstream/master
 
       - name: Submodule update
