@@ -6,7 +6,7 @@ on:
     - cron: '0 0 * * *'
 
 jobs:
-  build:
+  update-fork:
     runs-on: ubuntu-latest
     permissions:
       contents: write
