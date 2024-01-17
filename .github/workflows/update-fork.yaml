@@ -8,11 +8,12 @@ on:
 jobs:
   update-fork:
     runs-on: ubuntu-latest
+    outputs:
+      new-commits: ${{ steps.change-check.outputs.NEW_COMMITS }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
           submodules: recursive
           fetch-depth: 0
 
@@ -33,9 +34,21 @@ jobs:
           git submodule update --remote --merge
           git commit -m "update submodule" -a || true
 
+      - name: Check for changes
+        id: change-check
+        run: |
+          git fetch origin
+          echo "NEW_COMMITS=$([[ $(git rev-parse master) != $(git rev-parse origin/master) ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ github.ref }}
           force: true
+
+  update-docker-image:
+    needs: update-fork
+    if: needs.update-fork.outputs.new-commits == 'true'
+    uses: ./.github/workflows/docker-publish.yaml
+    secrets: inherit
