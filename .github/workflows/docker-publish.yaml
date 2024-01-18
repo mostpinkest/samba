@@ -49,6 +49,19 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+          
+      - name: Setup Go Build Cache for Docker
+        if: ${{ matrix.target == 'exporter' }}
+        uses: actions/cache@v4
+        with:
+          path: go-build-cache
+          key: ${{ runner.os }}-${{ matrix.platform }}-go-build-cache
+
+      - name: Inject go-build-cache into Docker
+        if: ${{ matrix.target == 'exporter' }}
+        uses: reproducible-containers/buildkit-cache-dance@v2
+        with:
+          cache-source: go-build-cache
 
       - name: Build
         id: build
