@@ -1,10 +1,5 @@
 name: Docker
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 on:
   push:
     branches: ["master"]
@@ -29,7 +24,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Docker meta
+      - name: Docker Meta
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -38,10 +33,10 @@ jobs:
             type=raw,${{ matrix.target }}
             type=sha,enable=true,priority=100,prefix=${{ matrix.target }}-,suffix=,format=short
 
-      - name: Set up QEMU
+      - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Set up Docker Buildx
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
@@ -73,17 +68,17 @@ jobs:
           push: false
           file: ./Dockerfile
           cache-from: type=gha
-          cache-to: type=gha,mode=maxt
+          cache-to: type=gha,mode=max
           build-args: IMAGE_TARGET=${{ matrix.target }}
           outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
 
-      - name: Export digest
+      - name: Export Digest
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
           touch "/tmp/digests/${digest#sha256:}"
 
-      - name: Upload digest
+      - name: Upload Digest
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}-digests
@@ -102,16 +97,16 @@ jobs:
       matrix:
         target: ["latest", "exporter"]
     steps:
-      - name: Download digests
+      - name: Download Digests
         uses: actions/download-artifact@v3
         with:
           name: ${{ matrix.target }}-digests
           path: /tmp/digests
 
-      - name: Set up Docker Buildx
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Docker meta
+      - name: Docker Meta
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -133,19 +128,19 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create manifest list and push
+      - name: Create Manifest List and Push
         working-directory: /tmp/digests
         run: |
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf '${{ env.REGISTRY_IMAGE }}@sha256:%s ' *)
           
-      - name: Push image to GHCR
+      - name: Push Image to GHCR
         run: |
           docker buildx imagetools create \
             --tag ghcr.io/${{ env.REGISTRY_IMAGE }}:${{ matrix.target }} \
             ${{ env.REGISTRY_IMAGE }}:${{ matrix.target }}
 
-      - name: Inspect image
+      - name: Inspect Image
         run: |
           docker buildx imagetools inspect ${{ env.REGISTRY_IMAGE }}:${{ matrix.target }}
 
@@ -165,7 +160,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Update repo description
+      - name: Update Repo Description
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
