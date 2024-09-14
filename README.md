@@ -18,6 +18,9 @@ This image comes in two variants:
 * `logicer16/samba:latest`: A modified version of [dperson/samba](https://github.com/dperson/samba), with additional support for a custom config.
 * `logicer16/samba:exporter`: The same as `logicer16/samba:latest` with [imker25/samba_exporter](https://github.com/imker25/samba_exporter/) running alongside it on port `9922`.
 
+> [!WARNING]  
+> In its current state, `logicer16/samba:exporter` is considered unstable. Do not expect issues to be resolved within any reasonable timeframe. Suggestions and PRs are still welcomed and encouraged.
+
 By default there are no shares configured, additional ones can be added.
 
 ## Hosting a Samba instance
@@ -108,14 +111,17 @@ OR run with exporter:
  * `SAMBA_EXPORTER_ARGS` - [Options for `samba_exporter`](https://imker25.github.io/samba_exporter/manpages/samba_exporter.1.html#OPTIONS). Only available with the `exporter` tag.
  * `SMB_CONF_PATH` - See [`smb.conf`](#smbconf). Defaults to `/etc/docker-samba/smb.conf`
 
-**NOTE**: if you enable nmbd (via `-n` or the `NMBD` environment variable), you
+> [!NOTE]
+> If you enable nmbd (via `-n` or the `NMBD` environment variable), you
 will also want to expose port 137 and 138 with `-p 137:137/udp -p 138:138/udp`.
 
-**NOTE2**: there are reports that `-n` and `NMBD` only work if you have the
+> [!NOTE]
+> There are reports that `-n` and `NMBD` only work if you have the
 container configured to use the hosts network stack.
 
-**NOTE3**: optionally supports additional variables starting with the same name,
-IE `SHARE` also will work for `SHARE2`, `SHARE3`... `SHAREx`, etc.
+> [!NOTE]
+> Optionally supports additional variables starting with the same name,
+i.e. `SHARE` also will work for `SHARE2`, `SHARE3`... `SHAREx`, etc.
 
 ### `smb.conf`
 
