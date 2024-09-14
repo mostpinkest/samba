@@ -1,12 +1,23 @@
 #! /bin/bash
 
+# escape special characters (including: " to \", \ to \\)
+escape_special() {
+  echo $@ | awk '{gsub(/\\/,"\\\\");gsub(/"/,"\\\"")}1'
+}
+
 supervisord_conf_path=/etc/supervisor/conf.d/supervisord.conf
 
 # Copy config file
 cp $SMB_CONF_PATH /etc/samba/smb.conf
 
+# Readd quotes to each argument, which had previously been removed when parsed by bash, and escape special characters.
+# This esnures arguments are interpreted as is, without special characters affecting behaviour.
+CLI_ARGS=""
+for arg in "${@}"; do CLI_ARGS="$CLI_ARGS \"$( escape_special $arg )\""; done
+
 # Collect arguments for environment vaiables
-SAMBA_SH_ARGS="$@ $SAMBA_SH_ARGS"
+# Escaped here to allow awk to processs as is.
+SAMBA_SH_ARGS="$(escape_special "$CLI_ARGS $SAMBA_SH_ARGS")"
 
 if [[ $IMAGE_TARGET == "exporter" ]]; then
   # Modify supervisord.conf and exporter-supervisord.conf
@@ -24,6 +35,7 @@ sub(/<#@SAMBA_EXPORTER_ARGS>/,\"$SAMBA_EXPORTER_ARGS\");"
 
   echo "$address$metrics_path" > /tmp/exporter-healthcheck-url
 fi
+
 cat "/dist$supervisord_conf_path" | \
 awk "{sub(/<#@SAMBA_SH_ARGS>/,\"$SAMBA_SH_ARGS\")$multiple_awk}1" > $supervisord_conf_path
 
