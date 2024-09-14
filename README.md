@@ -91,16 +91,16 @@ OR run with exporter:
 ### Environment Variables
 
  * `CHARMAP` - As above, configure character mapping
- * `GENERIC` - As above, configure a generic section option (See NOTE3 below)
- * `GLOBAL` - As above, configure a global option (See NOTE3 below)
+ * `GENERIC` - As above, configure a generic section option (\*See tip below)
+ * `GLOBAL` - As above, configure a global option (\*See tip below)
  * `IMPORT` - As above, import a smbpassword file
  * `NMBD` - As above, enable nmbd
  * `PERMISSIONS` - As above, set file permissions on all shares
  * `RECYCLE` - As above, disable recycle bin
- * `SHARE` - As above, setup a share (See NOTE3 below)
+ * `SHARE` - As above, setup a share (\*See tip below)
  * `SMB` - As above, disable SMB2 minimum version
  * `TZ` - Set a timezone, IE `EST5EDT`
- * `USER` - As above, setup a user (See NOTE3 below)
+ * `USER` - As above, setup a user (\*See tip below)
  * `WIDELINKS` - As above, allow access wide symbolic links
  * `WORKGROUP` - As above, set workgroup
  * `USERID` - Set the UID for the samba server's default user (smbuser)
@@ -119,8 +119,8 @@ will also want to expose port 137 and 138 with `-p 137:137/udp -p 138:138/udp`.
 > There are reports that `-n` and `NMBD` only work if you have the
 container configured to use the hosts network stack.
 
-> [!NOTE]
-> Optionally supports additional variables starting with the same name,
+> [!TIP]
+> \*Optionally supports additional variables starting with the same name,
 i.e. `SHARE` also will work for `SHARE2`, `SHARE3`... `SHAREx`, etc.
 
 ### `smb.conf`
