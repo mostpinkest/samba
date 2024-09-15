@@ -62,6 +62,19 @@ global() { local key="$(sed 's| *=.*||' <<< $1)" \
     fi
 }
 
+### group: add user(s) to a group
+# Arguments:
+#   group) the target group
+#   ...user) a variable list of users to add
+# Return: user(s) added to group
+group() { local group="$1" users="${@:2}"
+    grep -q "^$group:" /etc/group ||
+                addgroup ${gid:+--gid $gid }"$group";
+    for user in $users; do
+        usermod -aG "$group" $user
+    done
+}
+
 ### include: add a samba config file include
 # Arguments:
 #   file) file to import
@@ -241,7 +254,7 @@ The 'command' (if provided and valid) will be run instead of samba
 [[ "${USERID:-""}" =~ ^[0-9]+$ ]] && usermod -u $USERID -o smbuser
 [[ "${GROUPID:-""}" =~ ^[0-9]+$ ]] && groupmod -g $GROUPID -o smb
 
-while getopts ":hc:G:g:i:nprs:Su:Ww:I:" opt; do
+while getopts ":hc:G:g:i:nprR:s:Su:Ww:I:" opt; do
     case "$opt" in
         h) usage ;;
         c) charmap "$OPTARG" ;;
@@ -251,6 +264,7 @@ while getopts ":hc:G:g:i:nprs:Su:Ww:I:" opt; do
         n) NMBD="true" ;;
         p) PERMISSIONS="true" ;;
         r) recycle ;;
+        R) group $OPTARG ;;
         s) eval share $(sed 's/^/"/; s/$/"/; s/;/" "/g' <<< $OPTARG) ;;
         S) smb ;;
         u) eval user $(sed 's/^/"/; s/$/"/; s/;/" "/g' <<< $OPTARG) ;;

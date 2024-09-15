@@ -56,6 +56,7 @@ OR run with exporter:
         -n          Start the 'nmbd' daemon to advertise the shares
         -p          Set ownership and permissions on the shares
         -r          Disable recycle bin for shares
+        -R "<group> <user> [...users]" Add user(s) to group
         -S          Disable SMB2 minimum version
         -s "<name;/path>[;browse;readonly;guest;users;admins;writelist;comment]"
                     Configure a share
