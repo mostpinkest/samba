@@ -17,7 +17,7 @@ RUN mkdir -p /dist/usr && \
 
 # ==============================================
 
-FROM alpine as latest_image
+FROM alpine AS latest_image
 
 # Install samba
 RUN apk --no-cache --no-progress upgrade && \
@@ -94,7 +94,7 @@ HEALTHCHECK --interval=60s --timeout=15s \
 
 # ==============================================
 
-FROM latest_image as exporter_image
+FROM latest_image AS exporter_image
 
 RUN apk --no-cache --no-progress add python3 && \
     addgroup -S samba-exporter && \
