@@ -23,6 +23,11 @@ jobs:
       dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
       tag: ${{ matrix.target }}
       tag-buildarg: IMAGE_TARGET
+      build-cache-map: |
+        {
+          "go-build-cache": "/root/.cache/go-build",
+          "go-package-cache": "/go/pkg"
+        }
     secrets:
       dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
