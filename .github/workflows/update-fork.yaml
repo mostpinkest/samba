@@ -9,7 +9,7 @@ jobs:
   update-repo:
     uses: logicer16/workflows/.github/workflows/update-repo.yml@main
     with:
-      upstream: AleixoLucas42/duplicati-prometheus-exporter
+      upstream: dperson/samba
 
   update-docker-image:
     needs: update-repo
