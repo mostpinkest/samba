@@ -1,4 +1,4 @@
-[![logo](https://raw.githubusercontent.com/logicer16/samba/master/logo.jpg)](https://www.samba.org)
+[![logo](https://raw.githubusercontent.com/mostpinkest/samba/master/logo.jpg)](https://www.samba.org)
 
 # Samba
 
@@ -15,32 +15,32 @@ Windows, OS/2, Linux and many others.
 # How to use this image
 
 This image comes in two variants:
-* `logicer16/samba:latest`: A modified version of [dperson/samba](https://github.com/dperson/samba), with additional support for a custom config.
-* `logicer16/samba:exporter`: The same as `logicer16/samba:latest` with [imker25/samba_exporter](https://github.com/imker25/samba_exporter/) running alongside it on port `9922`.
+* `mostpinkest/samba:latest`: A modified version of [dperson/samba](https://github.com/dperson/samba), with additional support for a custom config.
+* `mostpinkest/samba:exporter`: The same as `mostpinkest/samba:latest` with [imker25/samba_exporter](https://github.com/imker25/samba_exporter/) running alongside it on port `9922`.
 
 > [!WARNING]  
-> In its current state, `logicer16/samba:exporter` is considered unstable. Do not expect issues to be resolved within any reasonable timeframe. Suggestions and PRs are still welcomed and encouraged.
+> In its current state, `mostpinkest/samba:exporter` is considered unstable. Do not expect issues to be resolved within any reasonable timeframe. Suggestions and PRs are still welcomed and encouraged.
 
 By default there are no shares configured, additional ones can be added.
 
 ## Hosting a Samba instance
 
-    sudo docker run -it -p 139:139 -p 445:445 -d logicer16/samba -p
+    sudo docker run -it -p 139:139 -p 445:445 -d mostpinkest/samba -p
 
 OR set local storage:
 
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d logicer16/samba -p
+                -d mostpinkest/samba -p
 
 OR run with exporter:
 
     sudo docker run -it -p 139:139 -p 445:445 -p 9922:9922 -d \
-                logicer16/samba:exporter -p
+                mostpinkest/samba:exporter -p
 
 ## Configuration
 
-    sudo docker run -it --rm logicer16/samba -h
+    sudo docker run -it --rm mostpinkest/samba -h
     Usage: samba.sh [-opt] [command]
     Options (fields in '[]' are optional, '<>' are required):
         -h          This help
@@ -135,11 +135,11 @@ Any of the commands can be run at creation with `docker run` or later with
 
 ### Setting the Timezone
 
-    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d logicer16/samba -p
+    sudo docker run -it -e TZ=EST5EDT -p 139:139 -p 445:445 -d mostpinkest/samba -p
 
 ### Start an instance creating users and shares:
 
-    sudo docker run -it -p 139:139 -p 445:445 -v config/smb.conf:/etc/docker-samba/smb.conf -d logicer16/samba -p \
+    sudo docker run -it -p 139:139 -p 445:445 -v config/smb.conf:/etc/docker-samba/smb.conf -d mostpinkest/samba -p \
                 -u "example1;badpass" \
                 -u "example2;badpass" \
                 -s "public;/share" \
@@ -149,7 +149,7 @@ Any of the commands can be run at creation with `docker run` or later with
 
 ### Use a custom `smb.conf`
 
-    sudo docker run -it -p 139:139 -p 445:445 -d logicer16/samba -p \
+    sudo docker run -it -p 139:139 -p 445:445 -d mostpinkest/samba -p \
                 -u "example1;badpass"
 
 # User Feedback
@@ -165,7 +165,7 @@ Add the `-p` option to the end of your options to the container, or set the
 
     sudo docker run -it --name samba -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d logicer16/samba -p
+                -d mostpinkest/samba -p
 
 If changing the permissions of your files is not possible in your setup you
 can instead set the environment variables `USERID` and `GROUPID` to the
@@ -179,7 +179,7 @@ docker_compose.yml files, IE:
 
     sudo docker run -it --name samba -m 512m -p 139:139 -p 445:445 \
                 -v /path/to/directory:/mount \
-                -d logicer16/samba -p
+                -d mostpinkest/samba -p
 
 * Attempting to connect with the `smbclient` commandline tool. By default samba
 still tries to use SMB1, which is depriciated and has security issues. This
@@ -190,4 +190,4 @@ any other options you would specify.
 ## Issues
 
 If you have any problems with or questions about this image, please contact me
-through a [GitHub issue](https://github.com/logicer16/samba/issues).
+through a [GitHub issue](https://github.com/mostpinkest/samba/issues).

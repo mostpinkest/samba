@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         target: ["latest", "exporter"]
-    uses: "logicer16/workflows/.github/workflows/docker.yml@main"
+    uses: "mostpinkest/workflows/.github/workflows/docker.yml@main"
     permissions:
       contents: read
       packages: write
@@ -32,7 +32,7 @@ jobs:
       dockerhub-token: ${{ secrets.DOCKERHUB_TOKEN }}
 
   dockerhub-description:
-    uses: "logicer16/workflows/.github/workflows/dockerhub-description.yml@main"
+    uses: "mostpinkest/workflows/.github/workflows/dockerhub-description.yml@main"
     needs:
       - publish
     permissions:

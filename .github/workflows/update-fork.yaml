@@ -7,7 +7,7 @@ on:
 
 jobs:
   update-repo:
-    uses: logicer16/workflows/.github/workflows/update-repo.yml@main
+    uses: mostpinkest/workflows/.github/workflows/update-repo.yml@main
     with:
       upstream: dperson/samba
 
