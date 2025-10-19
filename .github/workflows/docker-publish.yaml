@@ -17,7 +17,9 @@ jobs:
         target: ["latest", "exporter"]
     uses: "mostpinkest/workflows/.github/workflows/docker.yml@main"
     permissions:
+      id-token: write
       contents: read
+      attestations: write
       packages: write
     with:
       dockerhub-username: ${{ vars.DOCKERHUB_USERNAME }}
